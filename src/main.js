@@ -419,5 +419,19 @@ console.info(
         return cardConfig;
       }
     }
-    
-    customElements.define('card-templater', CardTemplater);
+
+    if (!customElements.get('card-templater')) {
+      customElements.define('card-templater', CardTemplater);
+    }
+    (async () => {
+      // Wait for scoped customElements registry to be set up
+      // and then redefine card-templater if necessary
+      // otherwise the customElements registry card-templater is defined in
+      // may get overwritten by the polyfill if card-templater is loaded as a module
+      while (customElements.get('home-assistant') === undefined)
+        await new Promise((resolve) => window.setTimeout(resolve, 100));
+
+      if (!customElements.get('card-templater')) {
+        customElements.define('card-template', CardMod);
+      }
+    })();
